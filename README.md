@@ -7,6 +7,10 @@ Macroquest2 Bot 0-70
 
 | I used it for level 0-70, I just never want to go higher in levels after 70, so additional effects/AA will need to be added by you 
 
+TLO for Programming Wiki https://www.macroquest2.com/wiki/index.php/TLO
+NotePad++ Syntax File https://www.macroquest2.com/wiki/index.php/Notepadplusplus_Syntax_File
+
+
 | CodeName: Panther
 | This Program is based off of ModBot/RaidDruid/AutoBot and EQ2 Ogre 
 | I Was disgusted with the amount of time it Takes a noob to setup Autobot from Learning Plugins 

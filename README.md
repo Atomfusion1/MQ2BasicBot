@@ -2,6 +2,9 @@
 # Panther
 Macroquest2 Bot 0-70
 
+| I have Written this program over the past 10 years, On/Off originally I found Plugins hard to compile/ get working back when you had to do it manually, also i was playing on Free EQ servers, making it even harder to get Plugins working. 
+| I am finally putting this out there just to show people how to write a complete bot without plugins (though MQ2Nav is amazing and i put it in) 
+
 | I used it for level 0-70, I just never want to go higher in levels after 70, so additional effects/AA will need to be added by you 
 
 | CodeName: Panther

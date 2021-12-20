@@ -1,0 +1,129 @@
+| This Program is based off of ModBot/RaidDruid/AutoBot and EQ2 Ogre 
+| I Was discusted with the amount of time it Takes a noob to setup Autobot from Learning Plugins 
+| So im Designing this with this in mind... This macro will Not Use by Defualt any Plugins (But Can Be Easily Added *By YOU*)
+| So Lets Strap in and Get Started
+| Version .25
+| Not for public use until Version 1.0
+| When Adding Code Please Use Good Notations
+| Startup In Game /notify GroupWindow GW_FollowButton leftmouseup
+
+| Lets Setup MQ2IRC 
+| type Plugin mq2irc
+| now type /connect irc.mibbit.net 6666 <ServerName> <CharacterName>
+| now type /i join <ServerName>
+| to type into channel type /i say "Say What"
+
+#turbo 15
+#warning
+
+| This Section tells the program to take commands only from Tells or Group chat
+#chat tell
+#chat group
+
+#event Follow "[MQ2] Follow #1#"
+#event StopFollow "[MQ2] Stop Follow"
+
+Sub Main
+{
+	/Call Startup
+	/echo Powerleveling On
+	/echo Now Healing ${Member[1]} ${Member[2]} ${Member[3]} ${Member[4]} ${Member[5]} ${Member[6]}
+	/while (TRUE) {
+		/Call HealingMembers
+		/Call SnareMobs
+	 
+	/doevents
+	}
+ }
+/return
+ 
+ 
+ 
+Sub HealingMembers
+	/for index 1 to 6
+	/target ${Member[${index}]}
+	/delay 5
+		 /if (${Spawn[=${Member[${index}]}].PctHPs} < 60 && ${Spawn[=${Member[${index}]}].PctHPs} > 1) {
+			/echo checking ${Member[${index}]}
+			 /cast ${HealingSpell}
+		 }
+	/next index
+	| Should I heal self 
+	/if (${Me.PctHPs} < 60 && ${Me.PctHPs} > 1) {
+		/target ${Me}
+		/delay 5
+		/cast ${HealingSpell}
+	}
+	/delay 50
+/return 
+ 
+ 
+ Sub SnareMobs
+ 	 | ${Spawn[${Me.TargetOfTarget}].PctHPs}
+ 
+ 
+ 
+ 
+ /return 
+ 
+ 
+ Sub MoveTo
+| Short and Sweet Follow as efficient as possible breaks on attack call or can be adjusted in events 
+	/if (${Spawn[${MoveToT}].Distance3D}>220 && !${Spawn[${MoveToT}].LineOfSight} || ${Spawn[${MoveToT}].Distance3D}>420 ) /return
+	/if (${Me.Sitting}) /stand
+	/if (${Bool[${Me.Mount}]}) /dismount
+	/echo MoveTo ${MoveToT}
+	/squelch /target id ${MoveToT}
+	/delay 10 ${Target.ID}==${MoveToT}
+	/while (${IsBool} && !${StopFollow}) {
+		/if (${Target.ID}!=${MoveToT}) /squelch /target id ${MoveToT}
+			/while (${Target.Distance3D} > ${IDist}) {
+				/if (${Target.ID}!=${MoveToT}) /squelch /target id ${MoveToT}
+				/face fast nolook
+				/keypress forward hold
+				/delay 2 (${Target.Distance3D} <= ${IDist})
+				/keypress forward
+			}
+		/doevents
+		/Call HealingMembers
+	}
+/return 
+  
+ 
+ Sub Startup
+/declare index int outer 0
+/declare Member[6] string outer NULL
+/declare MoveToT string outer NULL
+/declare StopFollow bool outer FALSE
+/declare IsBool bool outer FALSE
+/declare IDist int outer 20
+ 
+/varset Member[1] 
+/varset Member[2] 
+/varset Member[3] 
+/varset Member[4] 
+/varset Member[5] 
+/varset Member[6] 
+
+/declare HealingSpell string outer "Nature's Touch"
+ 
+ 
+ 
+ /return
+ 
+ Sub Event_Follow(string junk, string FTarget2)
+	/if (${Spawn[${FTarget2}].ID}==${Me.ID}) /return
+	/varset IsBool TRUE
+	/varset StopFollow FALSE
+	| This part follows the one who calls OTM 
+	/echo My target is ${FTarget2}
+	/squelch /target id ${Spawn[=${FTarget2}].ID}
+	/delay 10 ${Target.ID}==${Spawn[=${FTarget2}].ID}
+	/varset MoveToT ${Spawn[=${FTarget2}].ID}
+	/call MoveTo 
+/return
+
+Sub Event_StopFollow
+	/echo stop following
+	/varset IsBool FALSE
+/return

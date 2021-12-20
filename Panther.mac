@@ -1,0 +1,162 @@
+| CodeName: Panther
+| This Program is based off of ModBot/RaidDruid/AutoBot and EQ2 Ogre 
+| I Was discusted with the amount of time it Takes a noob to setup Autobot from Learning Plugins 
+| So im Designing this with this in mind... This macro will Not Use by Defualt any Plugins (But Can Be Easily Added *By YOU*)
+| So Lets Strap in and Get Started
+| Version .25
+| Not for public use until Version 1.0
+| When Adding Code Please Use Good Notations
+| Startup In Game /notify GroupWindow GW_FollowButton leftmouseup
+
+| Lets Setup MQ2IRC 
+| type Plugin mq2irc
+| now type /connect irc.mibbit.net 6666 <ServerName> <CharacterName>
+| now type /i join <ServerName>
+| to type into channel type /i say "Say What"
+
+#turbo 15
+#warning
+
+| This Section tells the program to take commands only from Tells or Group chat
+#chat tell
+#chat group
+
+
+
+
+| These Includes are Modular and Designed to be moved and Built As Needed
+| Setup Declare Variables
+#include Panther/IWantToStartup.inc
+#include Panther/IWantToSave.inc
+| This area is for Tanks/Monks/Bards etc. 
+#include Panther/IWantToMelee.inc
+| IWantToMove ... Controls Movement including Moveing Behind Without /Stick (EQ2Melee Not Required)
+#include Panther/IWantToMove.inc
+| IWantToHeal ... Controls Healing of Cleric/Shaman/Druids/Bst etc
+#include Panther/IWantToHeal.inc
+| IWantToNuke ... Controls Nuking of Caster
+#include Panther/IWantToNuke.inc
+| IWantPet ... Pet Controls and Heals
+#include Panther/IWantPet.inc
+| IWantToTwist ... Bard Twisting Control
+#include Panther/IWantToTwist.inc
+| IWantToCast ... Controls Casting and Recasting on Fizzles  
+#include Panther/IWantToCast.inc
+| IWantToDeBuff ... Controls Debuffing Dots... Mez.. Debuffs 
+#include Panther/IWantToDeBuff.inc
+| IWantToBuff ... Checks Buffs and Rebuffs When Needed 
+#include Panther/IWantToBuff.inc
+| IWantAnEvent ... Controls for Checking the Events (You Want the Bot to do Something in Response to Something Add it To this .inc
+#include Panther/IWantAnEvent.inc
+| IWantToLoot ... Controls Looting of a Mobs Dead Body's using Nijaadvloot now 
+#include Panther/IWantToLoot.inc
+| IAmDead ... Well That Sucks Stop Dying This inc will wait for rez and get you back up and going again using WaitforRez now
+#include Panther/IAmDead.inc
+| This Include Loads the Paramaters of the Bot for Your Player.
+#include Panther/MySetupFile.inc
+| This is the start of the Main Program this alerts the user by beeping twice
+#include Panther/Ninjadvloot.inc
+Sub Main 
+/doevents flush
+|/beep 
+|/beep
+
+| This Starts all the Declares and does Paramater Checks 
+/echo ******
+/echo ******
+/echo \a-rWelcome To Panther a Next Generation of EQ Botting 
+/echo \a-yStart_Up: ${Param0} Is The MT and ${Param1} Is the Camp (Cleric)
+/call Start_Up ${Param0} ${Param1}
+
+| This Calls on the MySetupFile.inc and loads all your variables
+/call LoadIni "Panther/Char/${Me.CleanName}_Setup.ini" LOAD
+|/call Panther/Char/${Me.CleanName}_Setup
+| This call checks if your spells are loaded and loads them Disable This if you Do NOT Want the Spells To Load for you
+| /if (${IWantToDeBuff} || ${IWantToDot} || ${IWantToDS} || ${IWillBuff} || ${IWantToTwist})	/call SetSpells
+/echo \a-rEverything Loaded Lets Go !!
+/echo ******
+/echo ******
+
+|NinjaLoot Variabls
+/call SetupAdvLootVars
+
+
+| *********************
+| This is the Main Loop 
+/while (TRUE) {
+:Main
+	/if (TRUE)									/call Checks			| IWantAnEvent.Inc
+	/if (${MobPulling} || ${LazyMode})			/call TargetMob			| IWantToMelee.Inc
+	/if (${IWantToHealMT}) 						/call HealMT			| IWantToHeal.Inc
+	/if (${IWantToHoT})							/call HealHoT			| IWantToHeal.Inc
+	/if (${IHealGroup}) 						/call HealGroup			| IWantToHeal.Inc
+	/if (${IDivineSelf})						/call DivineSelf		| IWantToHeal.Inc
+	/if (${IWantToRez})							/call CheckRez			| IWantToHeal.Inc
+	/if (${IHealPet})							/call HealPet			| IWantPet.Inc
+	/if (${IWantToDeBuff} && ${MeAggro})		/call Debuff			| IWantToDebuff.Inc
+		/if (${JustHealed}) { 											
+			/varset JustHealed FALSE 
+			/goto :Main 
+		}
+	/call DoIHaveAggro	| Main This Just checks to see if you have Aggro and if not Clear Combat IWantToMelee 
+	/if (${ICallTarget}) 						/call CallTarget		| IWantToMelee.Inc
+	/if (${MeAggro}) {		
+		/if (${IWantToMelee})					/call ImMelee			| IWantToMelee.Inc
+		/if (${IWantToMoveBehind}) 				/call MoveBehind		| IWantToMoveBehind.Inc	
+		/if (${IWantToMez})						/call DebuffMezz		| IWantToDebuff.Inc
+		/if (${IWantToDeBuff})					/call Debuff			| IWantToDebuff.Inc
+		/if (${IWantToSnare})					/call DebuffSnare 		| IWantToDebuff.Inc
+		/if (${IWantToDot})						/call DebuffDot			| IWantToCast.Inc
+		/if (${IWantToNuke})					/call Nuke				| IWantToNuket.Inc
+	} else {	
+		/varset TargetID 0
+		/varset MezzedMobs 0
+		/if (${StayAtMainCamp} && ${Math.Rand[100]} < 10) 			/call CampLoc	${Math.Calc[6+${Math.Rand[15]}]}		| This Checks If you Should be At Home IWantToMove.inc	25 Range
+		/if	(${IsBool} && !${StopFollow})		/call MoveTo			| IWantToMove.Inc			
+		/if (${ICheckPet})						/call SummonPet			| IWantPet.Inc
+		/if (${ICheckPet})						/call PetBuffs			| IWantPet.Inc
+		/if (${IWantToBuff})					/call Buffs				| IWantToBuff.Inc	
+		/if (${IWantToCampOut})					/call CampOut			| IWantAnEvent.Inc	
+		/if (${IWantToLoot}) 					/call Looting			| IWantToLoot.Inc	
+		/if (${Bool[${Spawn[${TargetID}].Type.Equal[Corpse]}]} || ${Bool[${Spawn[${TargetID}].Type.Equal[PC]}]} || !${Bool[${Spawn[${TargetID}].Type.Equal[NPC]}]} || !${Me.Combat}) {}
+		
+	}
+	/if (${IWantToTwist}) 						/call Twist				| IWantToTwist.Inc	
+	/if (${IWantToPull}) 						/call Pulling			| IWantToMove.Inc		
+	/if (${IWantToSit})							/call Sitting			| IWantToCast.Inc
+	/if (${IWantToDS})							/call DS				| IWantToBuff.Inc	
+
+	/doevents
+
+	/if (${Window[TradeWnd].HisTradeReady} && ${Bool[${AuthList.Find[${Window[TradeWnd].Child[TRDW_HisName].Text}]}]}) /notify TradeWnd TRDW_Trade_Button leftmouseup
+	| Close Alert Window
+	/if (${Window[AlertWnd]}) /notify AlertWnd ALW_Close_Button leftmouseup
+	
+	/while (${IPaused}) {
+		/doevents
+		/if (${IAmPausedTimer} == 0) {
+			/echo \arWARNING I Am Paused WARNING
+			/beep
+			/varset IAmPausedTimer 2m
+		}
+		/if (${IWantToCampOut})				/call CampOut			| IWantAnEvent.Inc			
+		/if (${IDied} && ${IDiedTimer}==0) {
+			/echo \arCamping out now 
+			/beep
+			/beep
+			/beep
+			/g ok time for bed
+			/camp desktop
+			/delay 500
+		}
+	}
+	
+	/if (${CheckDebug}) {
+		/echo \ayLoop Finish
+		/delay 9
+	}	
+}
+| *********************
+| *********************
+
+/return

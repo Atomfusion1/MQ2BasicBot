@@ -44,7 +44,13 @@ Sub LoadIni(MyIni,Function)
 	/lootn never 
 
 	| General Settings All Bots
-	/call LoadVar GeneralStuff AuthList "Put your list of master bots here" AuthList "${MyIni}" ${Function} string
+	/if (${Bool[${Group.Members}]}==FALSE) {
+		/call LoadVar GeneralStuff AuthList "Put your list of master bots here" AuthList "${MyIni}" ${Function} string
+	} else {
+		/declare TempString string local ${Group.Member[0].CleanName} ${Group.Member[1].CleanName} ${Group.Member[2].CleanName} ${Group.Member[3].CleanName} ${Group.Member[4].CleanName} ${Group.Member[5].CleanName} ${Group.Member[6].CleanName}
+		/echo Group Members added to Master List ${TempString}
+		/call LoadVar GeneralStuff AuthList "${TempString}" AuthList "${MyIni}" ${Function} string
+	}
 	/call LoadVar GeneralStuff CheckDebug FALSE CheckDebug "${MyIni}" ${Function} bool
 	/call LoadVar GeneralStuff IAskForFood FALSE IAskForFood "${MyIni}" ${Function} bool
 	/call LoadVar GeneralStuff StayAtMainCamp TRUE StayAtMainCamp "${MyIni}" ${Function} bool

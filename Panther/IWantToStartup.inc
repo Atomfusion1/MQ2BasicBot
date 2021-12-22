@@ -13,12 +13,13 @@ Sub Start_Up
 	| now type /connect irc.mibbit.net 6666 <ServerName> <CharacterName>
 	| now type /i join <ServerName>
 	| to type into channel type /i say "Say What"
-		/plugin mq2irc
-		/iconnect irc.mibbit.net 6666 #PrusaEQ ${Me.CleanName}
-		/delay 40
-		/i join #PrusaEQ
-		/delay 15
-		/i Test
+	/echo Setup IRC In IWANTTOSTARTUP.inc
+		| /plugin mq2irc
+		| /iconnect irc.mibbit.net 6666 <ServerName> <CharacterName>
+		| /delay 40
+		| /i join <ServerName>
+		| /delay 15
+		| /i Test
 	}
 
 

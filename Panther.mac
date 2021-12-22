@@ -52,8 +52,6 @@
 #include Panther/IWantToLoot.inc
 | IAmDead ... Well That Sucks Stop Dying This inc will wait for rez and get you back up and going again using WaitforRez now
 #include Panther/IAmDead.inc
-| This Include Loads the Paramaters of the Bot for Your Player.
-#include Panther/MySetupFile.inc
 | This is the start of the Main Program this alerts the user by beeping twice
 #include Panther/Ninjadvloot.inc
 Sub Main 
